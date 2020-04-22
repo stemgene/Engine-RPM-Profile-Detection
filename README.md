@@ -55,3 +55,9 @@
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/04.png" alt="drawing" width="500"/>
 </p>  
+
+- Step 4: Statistical significance
+
+<p align="center">
+<img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/05.png" alt="drawing" width="500"/>
+</p>  
