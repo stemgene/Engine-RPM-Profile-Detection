@@ -18,7 +18,7 @@
 
 - 3.2 Regression Approach
 
-  - Fine the inflection point of the torque from maximum value.
+  - Find the inflection point of the torque from maximum value.
   
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/01.png" alt="drawing" width="500"/>
@@ -26,8 +26,32 @@
 
 ### 3.2.1 Main steps
 
-- Step 1: Find the shell curve of data
+- Step 1: Find the contour curve of data
 
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/02.png" alt="drawing" width="500"/>
+</p>  
+
+- Step 2: Introduce linear regression
+
+  - Fitting N lines of linear regression
+  
+  - Horizontal line of the maximum of torque
+  
+  - N intersections among these two types of lines
+
+<p align="center">
+<img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/03.png" alt="drawing" width="500"/>
+</p>  
+
+- Step 3: Training the model and determine the optimized intersection.
+
+  - Ground truth: The theoretical value of HighPRM in handbook
+  
+  - Supervised learning to determine N
+  
+  - The intersection of two lines will be the predicted value.
+  
+<p align="center">
+<img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/04.png" alt="drawing" width="500"/>
 </p>  
