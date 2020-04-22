@@ -36,7 +36,7 @@
 
   - Fitting N lines of linear regression
   
-  - Horizontal line of the maximum of torque
+  - Horizontal line of the average value of top K of torque
   
   - N intersections among these two types of lines
 
@@ -48,7 +48,7 @@
 
   - Ground truth: The theoretical value of HighPRM in handbook
   
-  - Supervised learning to determine N
+  - Supervised learning to determine N and K
   
   - The intersection of two lines will be the predicted value.
   
@@ -60,4 +60,11 @@
 
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/05.png" alt="drawing" width="500"/>
+</p>  
+
+## 4. Development and Collaboration Environment
+
+
+<p align="center">
+<img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/06.png" alt="drawing" width="500"/>
 </p>  
