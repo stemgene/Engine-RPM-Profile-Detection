@@ -68,3 +68,9 @@
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/06.png" alt="drawing" width="500"/>
 </p>  
+
+## 5. Code Structure
+
+<p align="center">
+<img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/07.png" alt="drawing" width="400"/>
+</p>  
