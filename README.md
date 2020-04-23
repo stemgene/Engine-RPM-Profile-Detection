@@ -1,5 +1,15 @@
 # Engine-RPM-Profile-Detection
 
+## Highlights of the project
+  
+  - Figure out real world problems
+  
+  - Algorithm was created by ourselves
+  
+  - Satisfied output
+  
+  - Collaborative environment
+
 ## 1. Introduction
 
 **[Sponsor](https://www.vnomicscorp.com/)**
