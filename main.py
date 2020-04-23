@@ -3,7 +3,7 @@
 """
 Created on Fri Apr 17 10:46:43 2020
 
-@author: Haoyuan Dong
+@author: Yuan Lu, Zichu Li, Haoyuan Dong
 """
 
 import pandas as pd
@@ -44,14 +44,16 @@ def main(args):
     if args['general']['mode'] == 'train':
         
 #        pass
-        slope, intercept = train(valid_data, args['general']['path_to_save'],client,look_up,args['general']['bucket_name'],args['pooling'], args['general']['folder_name'])
+        slope, intercept = train(valid_data, args['general']['path_to_save'],client,look_up,args['general']['bucket_name'],args['regressing'], args['general']['folder_name'])
         
         test(valid_data, args['general']['path_to_save'],args['general']['run_id'], args['general']['bucket_name'],client, args['general']['folder_name'], mode = 'train')
         
     else:
         test(valid_data,args['general']['path_to_save'], args['general']['run_id'], args['general']['bucket_name'],client, args['general']['folder_name'])
     
-    
+    """
+    Code for the other approach
+    """
     trip_analysis(run_id = args['general']['run_id'],
           data_path = args['general']['data_path'], 
           data_file = args['general']['summary_name'],
@@ -68,8 +70,8 @@ def main(args):
          MaxRPM_range_high = args['summary']['MaxRPM_range_high'],
          MaxRPM_range_low  = args['summary']['MaxRPM_range_low'])
     
-    combine_sum_pool(run_id = args['general']['run_id'],
-             pool_result_path = args['general']['pool_result_path'],
+    combine_sum_regress(run_id = args['general']['run_id'],
+             regress_result_path = args['general']['regress_result_path'],
                  sum_result_path  = args['general']['sum_result_path'])
 
         

@@ -26,6 +26,7 @@ import re
 def get_valid_key(bucket_name, client_only = False):
     """
     get the valid key within given bucket
+    return: information of bitbuket and AWS
     """
     conn = S3Connection()
     bucket = conn.get_bucket('vnomics-external-data-analytics')
@@ -43,6 +44,10 @@ def get_valid_key(bucket_name, client_only = False):
     
 
 def smooth_out(bin_size,df,quantile = [0.1,1]):
+    """
+    Filter to get the outter contour of data
+    return: x: RPM, y:Torque
+    """
     q1 = np.quantile(df['engine_rpm-190'],q = quantile[0])
     q2 = np.quantile(df['engine_rpm-190'],q = quantile[1])
     num_bucket = (q1 + q2) // bin_size
@@ -54,31 +59,54 @@ def smooth_out(bin_size,df,quantile = [0.1,1]):
     return x, y
 
 def cut_off(x,y,val):
+    """
+    Detele points from left to right
+    return x:RPM, y:Torque
+    """
     index = x>val
     x = x[index]
     y = y[index]
     return x,y
 
 def get_top_q(torque, top_k = 0.05):
+    """
+    create the horizontal line
+    return: the intercept of horizontal line
+    """
     return np.mean(torque[torque>=np.quantile(torque,1-top_k)])
                                         
 def drop_col(x):
+    """
+    drop columns
+    """
+
     if not np.isnan(x['actual_torque_percent-513']) and not np.isnan(x['engine_rpm-190']):
         return True
     return False
 
 def decode(model,y,k):
+    """
+    Find the value of RPM from a model
+    return: HighRPM
+    """
     y_ = get_top_q(y,k)
     inter = model.intercept_
     slope = model.coef_[0]
     return (y_-inter)/slope
 
 def decode_(intercept,slope,y,k):
+    """
+    Find the value of RPM from intercept and slope
+    return: HighRPM
+    """
     y_ = get_top_q(y,k)
     return (y_-intercept)/slope
 
 def get_summary_df(bucket_name, path, client):
-    
+    """
+    draw dataframe
+    return: The dataframe of data
+    """
     obj = client.get_object(Bucket=bucket_name, 
                         Key=path)
 
@@ -88,11 +116,15 @@ def get_summary_df(bucket_name, path, client):
         if item[0] not in look_up:
             look_up[item[0]] = item[1]
         elif look_up[item[0]] != item[1]:
-            print('[pooling approach:]'+item[0], 'multiple ground truth')
+            print('[regressing approach:]'+item[0], 'multiple ground truth')
     return look_up
 
 
 def grid_search(df,config, key, look_up):
+    """
+    make a grid search strategy to find the residual for training
+    return: residual
+    """
     q1 = config['q1']
     q2 = config['q2']
     elimination_step = config['elimination_step']
@@ -118,7 +150,7 @@ def grid_search(df,config, key, look_up):
         cur_metric_res = abs(metric-ground_truth) * fit 
         if clf.coef_[0] < 0 and cur_metric_res<metric_res:
             plt.plot(x_,clf.predict(x_.reshape(-1,1)),'r')
-            print('[pooling approach:]'+'[training....] cur_metrics_res: {} best_metric_res: {} slope: {} decode: {} ' \
+            print('[regressing approach:]'+'[training....] cur_metrics_res: {} best_metric_res: {} slope: {} decode: {} ' \
                   .format(cur_metric_res,metric_res,clf.coef_[0],metric))
 #                             model = clf
             res['bin_size'] = bin_size
@@ -129,7 +161,10 @@ def grid_search(df,config, key, look_up):
     return res
 
 def train(valid_data,path_to_save, client, look_up, bucket_name,config, folder_name = 'round_2'):
-    
+    """
+    Training the model
+    return: slope, intercept
+    """
     res = []
     for item in valid_data:
         if folder_name in item.key: continue
@@ -137,7 +172,7 @@ def train(valid_data,path_to_save, client, look_up, bucket_name,config, folder_n
             pattern = re.compile('\d+')
             platform_id = pattern.findall(item.key.split('/')[-1])[0]
         except:
-            print('[pooling approach:]'+'skip {}'.format(item.key))
+            print('[regressing approach:]'+'skip {}'.format(item.key))
             continue
         obj = client.get_object(Bucket=bucket_name, 
                         Key=item.key)
@@ -151,7 +186,7 @@ def train(valid_data,path_to_save, client, look_up, bucket_name,config, folder_n
     mnodels = []
     for item in res:
         if 'model' not in item: 
-            print('[pooling approach:]'+'[error] {} don\'t have model'.format(item['platform_id']))
+            print('[regressing approach:]'+'[error] {} don\'t have model'.format(item['platform_id']))
             continue
         mnodels.append(item['model'])
     slope = []
@@ -167,8 +202,11 @@ def train(valid_data,path_to_save, client, look_up, bucket_name,config, folder_n
     return slope, intercept
 
 def test(valid_data,path_to_load, run_id, bucket_name , client, folder_name = 'round_2', mode = 'test'):
+    """
+    test the model
+    """
     if not path_to_load:
-        print('[pooling approach:]'+'please provide the pre-trained parameter')
+        print('[regressing approach:]'+'please provide the pre-trained parameter')
     else:
         
     
@@ -186,7 +224,7 @@ def test(valid_data,path_to_load, run_id, bucket_name , client, folder_name = 'r
             pattern = re.compile('\d+')
             platform_id = pattern.findall(item.key.split('/')[-1])[0]
         except:
-            print('[pooling approach:]'+'skip {}'.format(item.key))
+            print('[regressing approach:]'+'skip {}'.format(item.key))
             continue
         obj = None
         if mode == 'test':
@@ -204,6 +242,6 @@ def test(valid_data,path_to_load, run_id, bucket_name , client, folder_name = 'r
         platfor_id.append(platform_id)
         score = decode_(np.quantile(intercept,0.5),np.quantile(slope,0.5),df['actual_torque_percent-513'],0)
         high_RPM.append(score)
-        print('[pooling approach:]'+'[test...] platfor_id is {}; high_RPM is {}'.format(platform_id,score))
+        print('[regressing approach:]'+'[test...] platfor_id is {}; high_RPM is {}'.format(platform_id,score))
     df = pd.DataFrame({'platform_id':platfor_id,'high_RPM':high_RPM})
-    df.to_csv(run_id + 'pooling_result.csv')
+    df.to_csv(run_id + 'regressing_result.csv')
