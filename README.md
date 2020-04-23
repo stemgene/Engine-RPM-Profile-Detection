@@ -74,3 +74,7 @@
 <p align="center">
 <img src="https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/img/07.png" alt="drawing" width="400"/>
 </p>  
+
+## 6. Paperworks
+
+[Progress report](https://github.com/stemgene/Engine-RPM-Profile-Detection/blob/master/Paperworks/ProgressReport_Team6.pdf)
